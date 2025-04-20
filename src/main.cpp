@@ -1,17 +1,15 @@
-#include "core/cpu/adressing.hpp"
-#include <core/io/io.hpp>
+#include <memory>
+#include <unistd.h>
 
+#include <core/cpu/adressing.hpp>
+#include <core/cpu/cpu.hpp>
 #include <core/cpu/opcode/opcode.hpp>
 #include <core/cpu/opcode/opcode_none.hpp>
-
-#include <core/cpu/cpu.hpp>
 #include <core/io/bus/bus.hpp>
 #include <core/io/io.hpp>
 #include <core/io/io_stab.hpp>
 #include <core/io/memory/ram.hpp>
 #include <core/io/memory/rom.hpp>
-#include <memory>
-#include <unistd.h>
 
 // opcodes
 #include <core/cpu/opcode/opcode_lda.hpp>
@@ -441,6 +439,11 @@ void init_opcodes(core::cpu &target_cpu)
     target_cpu.register_opcode(std::make_unique<core::opcode_dey>(target_cpu), 0x88);
 
     // EOR
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_and>(IMMEDIATE, target_cpu),
+        0x49
+    );
+
     // INC
     // INX
     // INY
@@ -486,6 +489,12 @@ void init_opcodes(core::cpu &target_cpu)
 
 int main(int argc, char *argv[])
 {
+    if (argc < 2)
+    {
+        std::cerr << "Usage: " << argv[0] << " <rom_file>" << std::endl;
+        return 1;
+    }
+
     auto ram = std::make_unique<core::working_ram>();
     auto rom = std::make_unique<core::rom>(argv[1]);
     auto ppu = std::make_unique<core::io_stab>();
@@ -503,6 +512,6 @@ int main(int argc, char *argv[])
     for (;;)
     {
         cpu->clock();
-        usleep(100000);
+        usleep(5000);
     }
 }

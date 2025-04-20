@@ -52,7 +52,7 @@ namespace core
         void brk();
 
         // debug
-        void print_registers();
+        void print_cpu_status();
 
       private:
         uint8_t                 cycles;
@@ -68,7 +68,7 @@ namespace core
             address higher_address
         );
         void save_interrupt_frame();
-        void restore_interrupt_frame() {};
+        void restore_interrupt_frame();
     };
 }
 

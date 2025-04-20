@@ -5,7 +5,7 @@
 
 #include <core/cpu/opcode/opcode_none.hpp>
 
-#include <stdio.h>
+#include <iostream>
 
 namespace core
 {
@@ -44,7 +44,7 @@ namespace core
     // clock() is called from boards
     void cpu::clock()
     {
-        printf("current pc : 0x%04x\n", this->registers.pc);
+        // printf("current pc : 0x%04x\n", this->registers.pc);
         cycles--;
         // printf("cycles : %8d\n", cycles);
         if (is_cycle_running())
@@ -53,8 +53,10 @@ namespace core
         }
 
         uint8_t opcode_number = fetch();
-        printf("opcode : 0x%02x\n", opcode_number);
+        std::cout << std::format("opcode : 0x{:02X}", opcode_number) << std::endl;
+
         execute(opcode_number);
+        print_cpu_status();
     }
 
     bool cpu::is_cycle_running()
@@ -258,7 +260,11 @@ namespace core
         registers.init_registers();
         registers.pc = fetch_interrupt_handler_address(0xfffc, 0xfffd);
         // registers.pc = 0x8000;
-        printf("interrpt_handler_address : 0x%04x\n", this->registers.pc);
+        std::cout << std::format(
+            "interrpt_handler_address : 0x{:04X}\n",
+            registers.pc
+        ) << std::endl;
+        ;
         registers.disable_irq = false;
     }
 
@@ -296,12 +302,23 @@ namespace core
         push(registers.p);
     }
 
+    // rti
+    void cpu::restore_interrupt_frame()
+    {
+        registers.p                    = pop();
+
+        uint8_t lower_program_counter  = pop();
+        uint8_t higher_program_counter = pop();
+        registers.pc = merge_address(lower_program_counter, higher_program_counter);
+    }
+
     void cpu::irq()
     {
         if (registers.disable_irq)
         {
             return;
         }
+
         registers.disable_irq = true;
         registers.break_mode  = false;
         save_interrupt_frame();
@@ -315,10 +332,36 @@ namespace core
         {
             return;
         }
+
         registers.disable_irq = true;
         registers.break_mode  = true;
         save_interrupt_frame();
         registers.pc          = fetch_interrupt_handler_address(0xfffe, 0xffff);
         registers.disable_irq = false;
+    }
+
+    void cpu::print_cpu_status()
+    {
+        std::cout << "cycles    :" << std::format("{:02d}", cycles) << std::endl;
+        std::cout << "registers :" << std::endl;
+        std::cout << std::format("\e[8G A:  0x{:02X}\n", registers.a);
+        std::cout << std::format("\e[8G X:  0x{:02X}\n", registers.x);
+        std::cout << std::format("\e[8G Y:  0x{:02X}\n", registers.y);
+        std::cout << std::format("\e[8G PC: 0x{:04X}\n", registers.pc);
+        std::cout << std::format("\e[8G SP: 0x{:02X}\n", registers.s);
+        std::cout << std::format(
+            "\e[8G P:  0x{:02X} (Negative: {}, Overflow: {}, Reserved: {}, "
+            "Break: {}, "
+            "Decimal: {}, IRQ: {}, Zero: {}, Carry: {})\n",
+            registers.p,
+            static_cast<bool>(registers.negative),
+            static_cast<bool>(registers.overflow),
+            static_cast<bool>(registers.reserved),
+            static_cast<bool>(registers.break_mode),
+            static_cast<bool>(registers.decimal_mode),
+            static_cast<bool>(registers.disable_irq),
+            static_cast<bool>(registers.zero),
+            static_cast<bool>(registers.carry)
+        );
     }
 }

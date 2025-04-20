@@ -181,12 +181,14 @@ namespace core
     {
         io     &target_io        = search_io_from_address(target_address);
         address local_io_address = convert_local_io_address(target_address);
+        /*
         printf(
             "read : [0x%04x 0x%04x] -> 0x%02x\n",
             target_address,
             local_io_address,
             target_io.read(local_io_address)
         );
+        */
         return target_io.read(local_io_address);
     }
 
