@@ -1,5 +1,5 @@
-#ifndef BOARD_FACTORY_HPP
-#define BOARD_FACTORY_HPP
+#ifndef CORE_FACTORY_BOARD_FACTORY_HPP
+#define CORE_FACTORY_BOARD_FACTORY_HPP
 
 #include <core/board/board.hpp>
 
@@ -10,7 +10,8 @@ namespace core
     class board_factory
     {
       public:
-        std::unique_ptr<board> make();
+        virtual ~board_factory() {};
+        virtual std::unique_ptr<board> make(const char *rom_path) = 0;
     };
 }
 
