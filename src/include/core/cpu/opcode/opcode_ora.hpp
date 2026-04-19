@@ -19,7 +19,7 @@ namespace core
 
         void execute() override
         {
-            auto    fetched_address = root_cpu.fetch_operand_address(mode);
+            auto    fetched_address = root_cpu.fetch_operand_address(mode, true);
             uint8_t fetched_value {};
 
             using enum addressing_mode;

@@ -30,7 +30,7 @@ namespace core
         uint8_t fetch();
         void    execute(uint8_t target_opcode);
 
-        uint16_t fetch_operand_address(addressing_mode);
+        uint16_t fetch_operand_address(addressing_mode, bool add_page_cross_cycle = false);
         void     apply_cycles(uint8_t cycles);
 
         // flag

@@ -56,18 +56,20 @@ namespace core
     void cpu::clock()
     {
         bus->tick();
-        if (bus->poll_nmi())
-        {
-            nmi();
-        }
 
-        // printf("current pc : 0x%04x\n", this->registers.pc);
         cycles--;
-        // printf("cycles : %8d\n", cycles);
         if (is_cycle_running())
         {
             return;
         }
+
+        if (bus->poll_nmi())
+        {
+            nmi();
+            return;
+        }
+
+        // printf("current pc : 0x%04x\n", this->registers.pc);
 
         uint8_t opcode_number = fetch();
         if (is_cpu_trace_enabled())
@@ -97,7 +99,7 @@ namespace core
         opcodes[target_opcode]->execute();
     }
 
-    uint16_t cpu::fetch_operand_address(addressing_mode target_addressing_mode)
+    uint16_t cpu::fetch_operand_address(addressing_mode target_addressing_mode, bool add_page_cross_cycle)
     {
         switch (target_addressing_mode)
         {
@@ -148,11 +150,9 @@ namespace core
                     auto lower_target_address  = fetch();
                     auto higher_target_address = fetch();
                     auto base_address          = merge_address(lower_target_address, higher_target_address);
-                    auto target_address        = base_address + registers.x;
+                    auto target_address        = static_cast<uint16_t>(base_address + registers.x);
 
-                    // if page boundaries are to be crossed,
-                    // a cycle must be added.
-                    if ((base_address & 0xFF00) != (target_address & 0xFF00))
+                    if (add_page_cross_cycle && ((base_address & 0xFF00) != (target_address & 0xFF00)))
                     {
                         apply_cycles(1);
                     }
@@ -165,11 +165,9 @@ namespace core
                     auto lower_target_address  = fetch();
                     auto higher_target_address = fetch();
                     auto base_address          = merge_address(lower_target_address, higher_target_address);
-                    auto target_address        = base_address + registers.y;
+                    auto target_address        = static_cast<uint16_t>(base_address + registers.y);
 
-                    // if page boundaries are to be crossed,
-                    // a cycle must be added.
-                    if ((base_address & 0xFF00) != (target_address & 0xFF00))
+                    if (add_page_cross_cycle && ((base_address & 0xFF00) != (target_address & 0xFF00)))
                     {
                         apply_cycles(1);
                     }
@@ -212,15 +210,13 @@ namespace core
                     return target_address;
                 }
 
-                // TODO: add zero-page loop & page crossing
             case addressing_mode::INDIRECT_INDEXED :
                 {
-                    uint8_t base = fetch();
-                    // zero-page loop
+                    uint8_t  base               = fetch();
                     uint16_t pre_target_address = merge_address(bus->read(base), bus->read((base + 1) & 0xFF));
-                    auto     target_address     = pre_target_address + registers.y;
+                    auto     target_address     = static_cast<uint16_t>(pre_target_address + registers.y);
 
-                    if ((pre_target_address & 0xFF00) != (target_address & 0xFF00))
+                    if (add_page_cross_cycle && ((pre_target_address & 0xFF00) != (target_address & 0xFF00)))
                     {
                         apply_cycles(1);
                     }
@@ -281,41 +277,49 @@ namespace core
 
     void cpu::nmi()
     {
+        apply_cycles(7);
         save_interrupt_frame(false);
         registers.disable_irq = true;
         registers.pc          = fetch_interrupt_handler_address(0xfffa, 0xfffb);
     }
 
-    void cpu::save_interrupt_frame(bool break_mode)
+    void cpu::save_interrupt_frame(bool break_flag)
     {
-        uint8_t lower_program_counter  = (registers.pc >> 0) & 0xFF;
-        uint8_t higher_program_counter = (registers.pc >> 8) & 0xFF;
-        uint8_t status_to_push         = registers.p;
+        push((registers.pc >> 8) & 0xFF);
+        push(registers.pc & 0xFF);
 
-        // Bit 5 is always set on stack, bit 4 depends on BRK/PHP context.
-        status_to_push = static_cast<uint8_t>(status_to_push | 0x20);
-        if (break_mode)
+        uint8_t status = registers.p;
+
+        if (break_flag)
         {
-            status_to_push = static_cast<uint8_t>(status_to_push | 0x10);
+            status |= 0x10; // B = 1
         }
         else
         {
-            status_to_push = static_cast<uint8_t>(status_to_push & ~0x10);
+            status &= ~0x10; // B = 0
         }
 
-        push(higher_program_counter);
-        push(lower_program_counter);
-        push(status_to_push);
+        status |= 0x20; // bit5 = 1 (always 1)
+
+        push(status);
+
+        registers.disable_irq = true;
     }
 
     // rti
     void cpu::restore_interrupt_frame()
     {
-        registers.p                    = pop();
+        uint8_t status  = pop();
 
-        uint8_t lower_program_counter  = pop();
-        uint8_t higher_program_counter = pop();
-        registers.pc                   = merge_address(lower_program_counter, higher_program_counter);
+        status         |= 0x20; // bit5 = 1 (always 1)
+
+        status         &= ~0x10;
+
+        registers.p     = status;
+
+        uint8_t pcl     = pop();
+        uint8_t pch     = pop();
+        registers.pc    = merge_address(pcl, pch);
     }
 
     void cpu::irq()
@@ -325,6 +329,7 @@ namespace core
             return;
         }
 
+        apply_cycles(7);
         save_interrupt_frame(false);
         registers.disable_irq = true;
         registers.pc          = fetch_interrupt_handler_address(0xfffe, 0xffff);
