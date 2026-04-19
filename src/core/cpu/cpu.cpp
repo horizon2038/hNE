@@ -166,10 +166,9 @@ namespace core
             case addressing_mode::RELATIVE :
                 {
                     int8_t  offset = static_cast<int8_t>(fetch());
-                    int16_t target_address
-                        = registers.pc + static_cast<int16_t>(registers.pc)
-                        + static_cast<int16_t>(offset);
-                    return target_address & 0xFFFF;
+                    int16_t target_address = static_cast<int16_t>(registers.pc)
+                                           + static_cast<int16_t>(offset);
+                    return static_cast<uint16_t>(target_address);
                 }
 
             case addressing_mode::INDIRECT :

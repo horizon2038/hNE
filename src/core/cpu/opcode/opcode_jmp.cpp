@@ -11,7 +11,21 @@ namespace core
     void opcode_jmp::execute()
     {
         auto target_address = root_cpu.fetch_operand_address(mode);
-        root_cpu.registers.pc = target_address;
-        root_cpu.apply_cycles(3);
+        root_cpu.registers.pc  = target_address;
+
+        using enum addressing_mode;
+        switch (mode)
+        {
+            case ABSOLUTE :
+                root_cpu.apply_cycles(3);
+                break;
+
+            case INDIRECT :
+                root_cpu.apply_cycles(5);
+                break;
+
+            default :
+                return;
+        }
     }
 }

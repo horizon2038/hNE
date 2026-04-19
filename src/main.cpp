@@ -30,15 +30,22 @@
 
 #include <core/cpu/opcode/opcode_adc.hpp>
 #include <core/cpu/opcode/opcode_and.hpp>
+#include <core/cpu/opcode/opcode_eor.hpp>
 
 #include <core/cpu/opcode/opcode_asl.hpp>
 #include <core/cpu/opcode/opcode_bit.hpp>
+#include <core/cpu/opcode/opcode_bne.hpp>
 #include <core/cpu/opcode/opcode_cmp.hpp>
 #include <core/cpu/opcode/opcode_cpx.hpp>
 #include <core/cpu/opcode/opcode_cpy.hpp>
 #include <core/cpu/opcode/opcode_dec.hpp>
 #include <core/cpu/opcode/opcode_dex.hpp>
 #include <core/cpu/opcode/opcode_dey.hpp>
+#include <core/cpu/opcode/opcode_inc.hpp>
+#include <core/cpu/opcode/opcode_inx.hpp>
+#include <core/cpu/opcode/opcode_iny.hpp>
+#include <core/cpu/opcode/opcode_jmp.hpp>
+#include <core/cpu/opcode/opcode_sei.hpp>
 
 #include <core/cpu/opcode/opcode_brk.hpp>
 #include <core/cpu/opcode/opcode_nop.hpp>
@@ -440,13 +447,72 @@ void init_opcodes(core::cpu &target_cpu)
 
     // EOR
     target_cpu.register_opcode(
-        std::make_unique<core::opcode_and>(IMMEDIATE, target_cpu),
+        std::make_unique<core::opcode_eor>(IMMEDIATE, target_cpu),
         0x49
     );
 
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_eor>(ZERO_PAGE, target_cpu),
+        0x45
+    );
+
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_eor>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0x55
+    );
+
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_eor>(ABSOLUTE, target_cpu),
+        0x4D
+    );
+
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_eor>(INDEXED_ABSOLUTE_X, target_cpu),
+        0x5D
+    );
+
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_eor>(INDEXED_ABSOLUTE_Y, target_cpu),
+        0x59
+    );
+
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_eor>(INDEXED_INDIRECT, target_cpu),
+        0x41
+    );
+
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_eor>(INDIRECT_INDEXED, target_cpu),
+        0x51
+    );
+
     // INC
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_inc>(ZERO_PAGE, target_cpu),
+        0xE6
+    );
+
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_inc>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0xF6
+    );
+
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_inc>(ABSOLUTE, target_cpu),
+        0xEE
+    );
+
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_inc>(INDEXED_ABSOLUTE_X, target_cpu),
+        0xFE
+    );
+
     // INX
+    target_cpu.register_opcode(std::make_unique<core::opcode_inx>(target_cpu), 0xE8);
+
     // INY
+    target_cpu.register_opcode(std::make_unique<core::opcode_iny>(target_cpu), 0xC8);
+
     // LSR
     // ORA
     // ROL
@@ -459,6 +525,16 @@ void init_opcodes(core::cpu &target_cpu)
     // PLP
     //
     // JMP
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_jmp>(ABSOLUTE, target_cpu),
+        0x4C
+    );
+
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_jmp>(INDIRECT, target_cpu),
+        0x6C
+    );
+
     // JSR
     // RTS
     // RTI
@@ -468,6 +544,11 @@ void init_opcodes(core::cpu &target_cpu)
     // BEQ
     // BMI
     // BNE
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_bne>(RELATIVE, target_cpu),
+        0xD0
+    );
+
     // BPL
     // BVC
     // BVS
@@ -479,6 +560,7 @@ void init_opcodes(core::cpu &target_cpu)
     // SEC
     // SED
     // SEI
+    target_cpu.register_opcode(std::make_unique<core::opcode_sei>(target_cpu), 0x78);
 
     // BRK
     target_cpu.register_opcode(std::make_unique<core::opcode_brk>(target_cpu), 0x00);

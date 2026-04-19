@@ -10,12 +10,26 @@ namespace core
 
     void opcode_bne::execute()
     {
+        if (mode != addressing_mode::RELATIVE)
+        {
+            return;
+        }
+
+        auto pc_after_operand = root_cpu.registers.pc + 1;
+        auto target_address   = root_cpu.fetch_operand_address(mode);
+        auto cycles           = static_cast<uint8_t>(2);
+
         if (!root_cpu.registers.zero)
         {
-            auto target_address = root_cpu.fetch_operand_address(mode);
             root_cpu.registers.pc = target_address;
-            root_cpu.apply_cycles(1); // +1 cycle if branch succeeds
+
+            cycles = 3;
+            if ((pc_after_operand & 0xFF00) != (target_address & 0xFF00))
+            {
+                cycles = 4;
+            }
         }
-        root_cpu.apply_cycles(2); // base cycles
+
+        root_cpu.apply_cycles(cycles);
     }
 }
