@@ -211,7 +211,7 @@ namespace core
                         | ((pre_target_address + 1) & 0x00FF)
                     );
                     auto higher_target_address = bus->read(high_byte_address);
-                    auto target_address = merge_address(
+                    auto target_address        = merge_address(
                         lower_target_address,
                         higher_target_address
                     );
@@ -258,7 +258,7 @@ namespace core
 
     void cpu::apply_cycles(uint8_t cycles)
     {
-        this->cycles = cycles;
+        this->cycles += cycles;
     }
 
     void cpu::update_negative(uint8_t target_register)

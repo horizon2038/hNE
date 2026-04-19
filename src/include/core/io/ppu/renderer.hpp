@@ -11,7 +11,8 @@ namespace core
         virtual ~ppu_renderer() {};
 
         virtual void on_vram_write(uint16_t ppu_address, uint8_t value) = 0;
-        virtual void tick()                                              = 0;
+        virtual void tick()                                             = 0;
+        virtual void set_mask(uint8_t mask)                             = 0;
     };
 }
 

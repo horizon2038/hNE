@@ -28,6 +28,15 @@ namespace hal::standard
             case 'X' :
                 set_button_state(core::controller::button::SELECT, pressed);
                 break;
+            case 'a' :
+            case 'A' :
+                set_button_state(core::controller::button::A, pressed);
+                break;
+            case 's' :
+            case 'S' :
+                set_button_state(core::controller::button::B, pressed);
+                break;
+
             default :
                 break;
         }

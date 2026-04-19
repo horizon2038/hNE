@@ -38,6 +38,7 @@ namespace core
         uint8_t  mask {};
         uint8_t  status { 0x80 };
         uint8_t  oam_address {};
+        uint8_t  coarse_x_scroll {};
         uint8_t  fine_x_scroll {};
         uint8_t  scroll_y {};
         uint16_t vram_address {};

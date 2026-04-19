@@ -67,6 +67,16 @@
 
 #include <core/cpu/opcode/opcode_brk.hpp>
 #include <core/cpu/opcode/opcode_nop.hpp>
+
+#include <core/cpu/opcode/opcode_dcp.hpp>
+#include <core/cpu/opcode/opcode_isb.hpp>
+#include <core/cpu/opcode/opcode_lax.hpp>
+#include <core/cpu/opcode/opcode_rla.hpp>
+#include <core/cpu/opcode/opcode_rra.hpp>
+#include <core/cpu/opcode/opcode_sax.hpp>
+#include <core/cpu/opcode/opcode_slo.hpp>
+#include <core/cpu/opcode/opcode_sre.hpp>
+
 void init_opcodes(core::cpu &target_cpu)
 {
     using enum core::addressing_mode;
@@ -655,6 +665,12 @@ void init_opcodes(core::cpu &target_cpu)
         0xE9
     );
 
+    // unofficial SBC
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sbc>(IMMEDIATE, target_cpu),
+        0xEB
+    );
+
     target_cpu.register_opcode(
         std::make_unique<core::opcode_sbc>(ZERO_PAGE, target_cpu),
         0xE5
@@ -802,5 +818,352 @@ void init_opcodes(core::cpu &target_cpu)
     target_cpu.register_opcode(std::make_unique<core::opcode_brk>(target_cpu), 0x00);
 
     // NOP
-    target_cpu.register_opcode(std::make_unique<core::opcode_nop>(target_cpu), 0xEA);
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMPLIED, target_cpu),
+        0xEA
+    );
+
+    // undocumented NOP (implied)
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMPLIED, target_cpu),
+        0x1A
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMPLIED, target_cpu),
+        0x3A
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMPLIED, target_cpu),
+        0x5A
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMPLIED, target_cpu),
+        0x7A
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMPLIED, target_cpu),
+        0xDA
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMPLIED, target_cpu),
+        0xFA
+    );
+
+    // undocumented NOP (immediate)
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMMEDIATE, target_cpu),
+        0x80
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMMEDIATE, target_cpu),
+        0x82
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMMEDIATE, target_cpu),
+        0x89
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMMEDIATE, target_cpu),
+        0xC2
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(IMMEDIATE, target_cpu),
+        0xE2
+    );
+
+    // undocumented NOP (zero page)
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(ZERO_PAGE, target_cpu),
+        0x04
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(ZERO_PAGE, target_cpu),
+        0x44
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(ZERO_PAGE, target_cpu),
+        0x64
+    );
+
+    // undocumented NOP (zero page,X)
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0x14
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0x34
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0x54
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0x74
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0xD4
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0xF4
+    );
+
+    // undocumented NOP (absolute)
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(ABSOLUTE, target_cpu),
+        0x0C
+    );
+
+    // undocumented NOP (absolute,X) ※page crossingで+1cycle発生するタイプ
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ABSOLUTE_X, target_cpu),
+        0x1C
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ABSOLUTE_X, target_cpu),
+        0x3C
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ABSOLUTE_X, target_cpu),
+        0x5C
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ABSOLUTE_X, target_cpu),
+        0x7C
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ABSOLUTE_X, target_cpu),
+        0xDC
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_nop>(INDEXED_ABSOLUTE_X, target_cpu),
+        0xFC
+    );
+
+    // LAX
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_lax>(ZERO_PAGE, target_cpu),
+        0xA7
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_lax>(INDEXED_ZERO_PAGE_Y, target_cpu),
+        0xB7
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_lax>(ABSOLUTE, target_cpu),
+        0xAF
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_lax>(INDEXED_ABSOLUTE_Y, target_cpu),
+        0xBF
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_lax>(INDEXED_INDIRECT, target_cpu),
+        0xA3
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_lax>(INDIRECT_INDEXED, target_cpu),
+        0xB3
+    );
+
+    // SAX
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sax>(ZERO_PAGE, target_cpu),
+        0x87
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sax>(INDEXED_ZERO_PAGE_Y, target_cpu),
+        0x97
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sax>(ABSOLUTE, target_cpu),
+        0x8F
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sax>(INDEXED_INDIRECT, target_cpu),
+        0x83
+    );
+
+    // DCP
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_dcp>(ZERO_PAGE, target_cpu),
+        0xC7
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_dcp>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0xD7
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_dcp>(ABSOLUTE, target_cpu),
+        0xCF
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_dcp>(INDEXED_ABSOLUTE_X, target_cpu),
+        0xDF
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_dcp>(INDEXED_ABSOLUTE_Y, target_cpu),
+        0xDB
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_dcp>(INDEXED_INDIRECT, target_cpu),
+        0xC3
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_dcp>(INDIRECT_INDEXED, target_cpu),
+        0xD3
+    );
+
+    // ISB
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_isb>(ZERO_PAGE, target_cpu),
+        0xE7
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_isb>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0xF7
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_isb>(ABSOLUTE, target_cpu),
+        0xEF
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_isb>(INDEXED_ABSOLUTE_X, target_cpu),
+        0xFF
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_isb>(INDEXED_ABSOLUTE_Y, target_cpu),
+        0xFB
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_isb>(INDEXED_INDIRECT, target_cpu),
+        0xE3
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_isb>(INDIRECT_INDEXED, target_cpu),
+        0xF3
+    );
+
+    // SLO
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_slo>(ZERO_PAGE, target_cpu),
+        0x07
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_slo>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0x17
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_slo>(ABSOLUTE, target_cpu),
+        0x0F
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_slo>(INDEXED_ABSOLUTE_X, target_cpu),
+        0x1F
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_slo>(INDEXED_ABSOLUTE_Y, target_cpu),
+        0x1B
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_slo>(INDEXED_INDIRECT, target_cpu),
+        0x03
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_slo>(INDIRECT_INDEXED, target_cpu),
+        0x13
+    );
+
+    // RLA
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rla>(ZERO_PAGE, target_cpu),
+        0x27
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rla>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0x37
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rla>(ABSOLUTE, target_cpu),
+        0x2F
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rla>(INDEXED_ABSOLUTE_X, target_cpu),
+        0x3F
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rla>(INDEXED_ABSOLUTE_Y, target_cpu),
+        0x3B
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rla>(INDEXED_INDIRECT, target_cpu),
+        0x23
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rla>(INDIRECT_INDEXED, target_cpu),
+        0x33
+    );
+
+    // SRE
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sre>(ZERO_PAGE, target_cpu),
+        0x47
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sre>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0x57
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sre>(ABSOLUTE, target_cpu),
+        0x4F
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sre>(INDEXED_ABSOLUTE_X, target_cpu),
+        0x5F
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sre>(INDEXED_ABSOLUTE_Y, target_cpu),
+        0x5B
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sre>(INDEXED_INDIRECT, target_cpu),
+        0x43
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_sre>(INDIRECT_INDEXED, target_cpu),
+        0x53
+    );
+
+    // RRA
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rra>(ZERO_PAGE, target_cpu),
+        0x67
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rra>(INDEXED_ZERO_PAGE_X, target_cpu),
+        0x77
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rra>(ABSOLUTE, target_cpu),
+        0x6F
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rra>(INDEXED_ABSOLUTE_X, target_cpu),
+        0x7F
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rra>(INDEXED_ABSOLUTE_Y, target_cpu),
+        0x7B
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rra>(INDEXED_INDIRECT, target_cpu),
+        0x63
+    );
+    target_cpu.register_opcode(
+        std::make_unique<core::opcode_rra>(INDIRECT_INDEXED, target_cpu),
+        0x73
+    );
 }
