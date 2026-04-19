@@ -338,6 +338,7 @@ namespace core
     void cpu::brk()
     {
         // BRK is a two-byte instruction; PC+1 must be pushed.
+        // apply_cycles(7);
         registers.pc = static_cast<uint16_t>(registers.pc + 1);
         save_interrupt_frame(true);
         registers.disable_irq = true;
