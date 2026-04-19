@@ -48,9 +48,7 @@ namespace core
             }
 
             auto fetched_address = root_cpu.fetch_operand_address(mode);
-            auto target_value    = static_cast<uint8_t>(
-                root_cpu.registers.a & root_cpu.registers.x
-            );
+            auto target_value    = static_cast<uint8_t>(root_cpu.registers.a & root_cpu.registers.x);
 
             root_cpu.bus->write(fetched_address, target_value);
         }

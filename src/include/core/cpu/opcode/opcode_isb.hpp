@@ -68,18 +68,15 @@ namespace core
             uint8_t accumulator = root_cpu.registers.a;
             uint8_t inverted    = static_cast<uint8_t>(~incremented_value);
 
-            uint16_t result     = static_cast<uint16_t>(accumulator)
-                            + static_cast<uint16_t>(inverted)
+            uint16_t result     = static_cast<uint16_t>(accumulator) + static_cast<uint16_t>(inverted)
                             + static_cast<uint16_t>(root_cpu.registers.carry);
 
-            uint8_t final_result     = static_cast<uint8_t>(result & 0x00FF);
+            uint8_t final_result        = static_cast<uint8_t>(result & 0x00FF);
 
-            root_cpu.registers.carry = (result > 0xFF);
-            root_cpu.registers.overflow
-                = ((accumulator ^ final_result) & (inverted ^ final_result) & 0x80)
-               != 0;
+            root_cpu.registers.carry    = (result > 0xFF);
+            root_cpu.registers.overflow = ((accumulator ^ final_result) & (inverted ^ final_result) & 0x80) != 0;
 
-            root_cpu.registers.a = final_result;
+            root_cpu.registers.a        = final_result;
             root_cpu.update_zero(final_result);
             root_cpu.update_negative(final_result);
         }

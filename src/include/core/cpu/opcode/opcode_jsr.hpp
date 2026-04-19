@@ -23,8 +23,7 @@ namespace core
             }
 
             auto target_address = root_cpu.fetch_operand_address(mode);
-            auto return_address
-                = static_cast<uint16_t>(root_cpu.registers.pc - 1);
+            auto return_address = static_cast<uint16_t>(root_cpu.registers.pc - 1);
 
             root_cpu.push(static_cast<uint8_t>((return_address >> 8) & 0xFF));
             root_cpu.push(static_cast<uint8_t>(return_address & 0xFF));

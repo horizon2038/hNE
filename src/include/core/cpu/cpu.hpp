@@ -41,10 +41,7 @@ namespace core
         uint8_t pop();
 
         // interrupt
-        void register_opcode(
-            std::unique_ptr<opcode> target_opcode,
-            uint16_t                opcode_number
-        );
+        void register_opcode(std::unique_ptr<opcode> target_opcode, uint16_t opcode_number);
 
         void reset();
         void nmi();
@@ -63,12 +60,9 @@ namespace core
 
         bool is_cycle_running();
 
-        uint16_t fetch_interrupt_handler_address(
-            address lower_address,
-            address higher_address
-        );
-        void save_interrupt_frame(bool break_mode);
-        void restore_interrupt_frame();
+        uint16_t fetch_interrupt_handler_address(address lower_address, address higher_address);
+        void     save_interrupt_frame(bool break_mode);
+        void     restore_interrupt_frame();
     };
 }
 

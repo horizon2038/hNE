@@ -18,10 +18,9 @@ namespace core
             root_cpu.registers.p        = root_cpu.pop();
             root_cpu.registers.reserved = true;
 
-            auto lower_address  = root_cpu.pop();
-            auto higher_address = root_cpu.pop();
-            root_cpu.registers.pc
-                = merge_address(lower_address, higher_address);
+            auto lower_address          = root_cpu.pop();
+            auto higher_address         = root_cpu.pop();
+            root_cpu.registers.pc       = merge_address(lower_address, higher_address);
             root_cpu.apply_cycles(6);
         }
 

@@ -1,9 +1,9 @@
 #ifndef CORE_OPCODE_STX_HPP
 #define CORE_OPCODE_STX_HPP
 
-#include <core/cpu/opcode/opcode.hpp>
-#include <core/cpu/cpu.hpp>
 #include <core/cpu/adressing.hpp>
+#include <core/cpu/cpu.hpp>
+#include <core/cpu/opcode/opcode.hpp>
 
 #include <iostream>
 
@@ -46,7 +46,7 @@ namespace core
 
       private:
         addressing_mode mode;
-        cpu &root_cpu;
+        cpu            &root_cpu;
     };
 }
 

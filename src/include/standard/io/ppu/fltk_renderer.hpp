@@ -38,9 +38,9 @@ namespace hal::standard
         std::unique_ptr<fltk_ppu_view>                        view;
         bool                                                  window_enabled {};
         bool                                                  dirty {};
-        std::chrono::steady_clock::time_point last_event_poll {};
-        std::chrono::steady_clock::time_point last_present {};
-        core::key_input_sink                 *key_input_sink {};
+        std::chrono::steady_clock::time_point                 last_event_poll {};
+        std::chrono::steady_clock::time_point                 last_present {};
+        core::key_input_sink                                 *key_input_sink {};
 
         std::array<uint8_t, 3> decode_color(uint8_t value) const;
 

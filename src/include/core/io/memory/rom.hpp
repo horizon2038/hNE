@@ -3,10 +3,10 @@
 
 #include <core/io/io.hpp>
 
-#include <stdint.h>
-#include <vector>
 #include <memory>
+#include <stdint.h>
 #include <string>
+#include <vector>
 
 namespace core
 {
@@ -25,13 +25,14 @@ namespace core
         union
         {
             uint8_t flag_6;
+
             struct
             {
-                uint8_t mirroring : 1;
+                uint8_t mirroring               : 1;
                 uint8_t persisent_memory_exists : 1;
-                uint8_t trainer_exists : 1;
-                uint8_t ignore_mirroring : 1;
-                uint8_t mapper_lower : 4;
+                uint8_t trainer_exists          : 1;
+                uint8_t ignore_mirroring        : 1;
+                uint8_t mapper_lower            : 4;
             };
         };
 
@@ -47,8 +48,8 @@ namespace core
       public:
         primitive_rom(std::unique_ptr<std::vector<uint8_t>> target_rom_data);
 
-        uint8_t read(address target_address) override;
-        void write(address target_address, uint8_t data) override;
+        uint8_t                     read(address target_address) override;
+        void                        write(address target_address, uint8_t data) override;
         const std::vector<uint8_t> &raw_data() const;
 
         void dump();
@@ -63,23 +64,20 @@ namespace core
         rom(const char *file_path);
         ~rom() {};
 
-        ines_header header;
+        ines_header          header;
         std::vector<uint8_t> trainer;
-        std::unique_ptr<io> charactor;
+        std::unique_ptr<io>  charactor;
         std::vector<uint8_t> inst_rom;
-        std::unique_ptr<io> program;
+        std::unique_ptr<io>  program;
 
         void ines_info();
 
       private:
         std::ifstream open_rom_file(const char *path);
-        ines_header read_ines_header(std::ifstream &flie);
-        void setup_rom(std::ifstream &file);
-        std::unique_ptr<std::vector<uint8_t>> create_vector_from_file(
-            std::ifstream &file,
-            std::streamoff offset,
-            size_t size
-        );
+        ines_header   read_ines_header(std::ifstream &flie);
+        void          setup_rom(std::ifstream &file);
+        std::unique_ptr<std::vector<uint8_t>>
+            create_vector_from_file(std::ifstream &file, std::streamoff offset, size_t size);
     };
 
 }

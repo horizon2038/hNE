@@ -27,8 +27,7 @@ namespace core
             {
                 case IMMEDIATE :
                     root_cpu.apply_cycles(2);
-                    target_value = static_cast<uint8_t>(fetched_address & 0xFF)
-                                 & root_cpu.registers.a;
+                    target_value         = static_cast<uint8_t>(fetched_address & 0xFF) & root_cpu.registers.a;
                     root_cpu.registers.a = target_value;
                     root_cpu.update_negative(target_value);
                     root_cpu.update_zero(target_value);

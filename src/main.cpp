@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     }
 
     hal::standard::board_factory factory;
-    auto                        board = factory.make(argv[1]);
+    auto                         board = factory.make(argv[1]);
     if (!board)
     {
         return 1;

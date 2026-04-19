@@ -65,8 +65,8 @@ namespace core
 
             root_cpu.bus->write(fetched_address, decremented_value);
 
-            uint8_t accumulator = root_cpu.registers.a;
-            uint8_t result = static_cast<uint8_t>(accumulator - decremented_value);
+            uint8_t accumulator      = root_cpu.registers.a;
+            uint8_t result           = static_cast<uint8_t>(accumulator - decremented_value);
 
             root_cpu.registers.carry = (accumulator >= decremented_value);
             root_cpu.update_zero(result);

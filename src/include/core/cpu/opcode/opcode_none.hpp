@@ -1,8 +1,8 @@
 #ifndef OPCODE_NONE_HPP
 #define OPCODE_NONE_HPP
 
-#include <core/cpu/opcode/opcode.hpp>
 #include <core/cpu/cpu.hpp>
+#include <core/cpu/opcode/opcode.hpp>
 
 namespace core
 {

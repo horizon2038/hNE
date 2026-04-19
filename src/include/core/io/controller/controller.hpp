@@ -22,7 +22,7 @@ namespace core
             RIGHT  = 7,
         };
 
-        ~controller() override = default;
+        ~controller() override                                            = default;
 
         virtual void set_button_state(button target_button, bool pressed) = 0;
     };

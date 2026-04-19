@@ -1,12 +1,12 @@
 #ifndef BUS_HPP
 #define BUS_HPP
 
-#include <core/io/io.hpp>
 #include <core/common/common.hpp>
+#include <core/io/io.hpp>
 #include <core/io/io_stab.hpp>
 
-#include <stdint.h>
 #include <memory>
+#include <stdint.h>
 
 namespace core
 {
@@ -19,10 +19,10 @@ namespace core
             std::unique_ptr<io> target_ppu,
             std::unique_ptr<io> target_controller1);
 
-        void write(address target_address, uint8_t data) override;
+        void    write(address target_address, uint8_t data) override;
         uint8_t read(address target_address) override;
-        void tick() override;
-        bool poll_nmi() override;
+        void    tick() override;
+        bool    poll_nmi() override;
 
       private:
         std::unique_ptr<io> working_ram;
@@ -33,7 +33,7 @@ namespace core
 
         io_stab empty_io;
 
-        io &search_io_from_address(address target_address);
+        io     &search_io_from_address(address target_address);
         address convert_local_io_address(address target_address);
     };
 }

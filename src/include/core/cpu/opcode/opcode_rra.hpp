@@ -59,15 +59,13 @@ namespace core
                     return;
             }
 
-            auto fetched_address = root_cpu.fetch_operand_address(mode);
-            auto original_value  = root_cpu.bus->read(fetched_address);
+            auto fetched_address     = root_cpu.fetch_operand_address(mode);
+            auto original_value      = root_cpu.bus->read(fetched_address);
 
-            uint8_t old_carry
-                = static_cast<uint8_t>(root_cpu.registers.carry ? 1 : 0);
-            bool new_carry = ((original_value & 0x01) != 0);
+            uint8_t old_carry        = static_cast<uint8_t>(root_cpu.registers.carry ? 1 : 0);
+            bool    new_carry        = ((original_value & 0x01) != 0);
 
-            auto rotated_value
-                = static_cast<uint8_t>((original_value >> 1) | (old_carry << 7));
+            auto rotated_value       = static_cast<uint8_t>((original_value >> 1) | (old_carry << 7));
 
             root_cpu.registers.carry = new_carry;
 
@@ -76,20 +74,16 @@ namespace core
             // --- ADC 部分 ---
             uint8_t accumulator = root_cpu.registers.a;
 
-            uint16_t result     = static_cast<uint16_t>(accumulator)
-                            + static_cast<uint16_t>(rotated_value)
+            uint16_t result     = static_cast<uint16_t>(accumulator) + static_cast<uint16_t>(rotated_value)
                             + static_cast<uint16_t>(root_cpu.registers.carry);
 
-            uint8_t final_result     = static_cast<uint8_t>(result & 0xFF);
+            uint8_t final_result        = static_cast<uint8_t>(result & 0xFF);
 
-            root_cpu.registers.carry = (result > 0xFF);
+            root_cpu.registers.carry    = (result > 0xFF);
 
-            root_cpu.registers.overflow
-                = ((accumulator ^ final_result) & (rotated_value ^ final_result)
-                   & 0x80)
-               != 0;
+            root_cpu.registers.overflow = ((accumulator ^ final_result) & (rotated_value ^ final_result) & 0x80) != 0;
 
-            root_cpu.registers.a = final_result;
+            root_cpu.registers.a        = final_result;
             root_cpu.update_zero(final_result);
             root_cpu.update_negative(final_result);
         }

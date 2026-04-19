@@ -2,8 +2,7 @@
 
 namespace core
 {
-    opcode_sei::opcode_sei(cpu &target_cpu)
-        : root_cpu { target_cpu }
+    opcode_sei::opcode_sei(cpu &target_cpu) : root_cpu { target_cpu }
     {
     }
 

@@ -28,14 +28,12 @@ namespace core
                 case IMMEDIATE :
                     {
                         root_cpu.apply_cycles(2);
-                        auto fetched_value = fetched_address & 0xFF;
-                        target_value = root_cpu.registers.x - fetched_value;
+                        auto fetched_value      = fetched_address & 0xFF;
+                        target_value            = root_cpu.registers.x - fetched_value;
 
-                        root_cpu.registers.zero
-                            = (fetched_value == root_cpu.registers.x);
+                        root_cpu.registers.zero = (fetched_value == root_cpu.registers.x);
                         root_cpu.update_negative(target_value);
-                        root_cpu.registers.carry
-                            = fetched_value <= root_cpu.registers.x;
+                        root_cpu.registers.carry = fetched_value <= root_cpu.registers.x;
                         return;
                     }
 

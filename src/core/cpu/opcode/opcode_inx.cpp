@@ -2,8 +2,7 @@
 
 namespace core
 {
-    opcode_inx::opcode_inx(cpu &target_cpu)
-        : root_cpu { target_cpu }
+    opcode_inx::opcode_inx(cpu &target_cpu) : root_cpu { target_cpu }
     {
     }
 

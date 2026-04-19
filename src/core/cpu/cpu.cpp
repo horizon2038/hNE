@@ -43,10 +43,7 @@ namespace core
         }
     }
 
-    void cpu::register_opcode(
-        std::unique_ptr<opcode> target_opcode,
-        uint16_t                opcode_number
-    )
+    void cpu::register_opcode(std::unique_ptr<opcode> target_opcode, uint16_t opcode_number)
     {
         if (opcode_number > (OPCODE_COUNT_MAX - 1))
         {
@@ -75,8 +72,7 @@ namespace core
         uint8_t opcode_number = fetch();
         if (is_cpu_trace_enabled())
         {
-            std::cout << std::format("opcode : 0x{:02X}", opcode_number)
-                      << std::endl;
+            std::cout << std::format("opcode : 0x{:02X}", opcode_number) << std::endl;
         }
 
         execute(opcode_number);
@@ -143,10 +139,7 @@ namespace core
                 {
                     auto lower_target_address  = fetch();
                     auto higher_target_address = fetch();
-                    auto target_address        = merge_address(
-                        lower_target_address,
-                        higher_target_address
-                    );
+                    auto target_address        = merge_address(lower_target_address, higher_target_address);
                     return target_address & 0xFFFF;
                 }
 
@@ -154,11 +147,8 @@ namespace core
                 {
                     auto lower_target_address  = fetch();
                     auto higher_target_address = fetch();
-                    auto base_address          = merge_address(
-                        lower_target_address,
-                        higher_target_address
-                    );
-                    auto target_address = base_address + registers.x;
+                    auto base_address          = merge_address(lower_target_address, higher_target_address);
+                    auto target_address        = base_address + registers.x;
 
                     // if page boundaries are to be crossed,
                     // a cycle must be added.
@@ -174,11 +164,8 @@ namespace core
                 {
                     auto lower_target_address  = fetch();
                     auto higher_target_address = fetch();
-                    auto base_address          = merge_address(
-                        lower_target_address,
-                        higher_target_address
-                    );
-                    auto target_address = base_address + registers.y;
+                    auto base_address          = merge_address(lower_target_address, higher_target_address);
+                    auto target_address        = base_address + registers.y;
 
                     // if page boundaries are to be crossed,
                     // a cycle must be added.
@@ -193,28 +180,21 @@ namespace core
             case addressing_mode::RELATIVE :
                 {
                     int8_t  offset         = static_cast<int8_t>(fetch());
-                    int16_t target_address = static_cast<int16_t>(registers.pc)
-                                           + static_cast<int16_t>(offset);
+                    int16_t target_address = static_cast<int16_t>(registers.pc) + static_cast<int16_t>(offset);
                     return static_cast<uint16_t>(target_address);
                 }
 
             case addressing_mode::INDIRECT :
                 {
-                    auto lower_address  = fetch();
-                    auto higher_address = fetch();
-                    auto pre_target_address
-                        = merge_address(lower_address, higher_address);
+                    auto lower_address        = fetch();
+                    auto higher_address       = fetch();
+                    auto pre_target_address   = merge_address(lower_address, higher_address);
                     auto lower_target_address = bus->read(pre_target_address);
                     // Emulate 6502 indirect JMP page-wrap bug.
-                    auto high_byte_address = static_cast<uint16_t>(
-                        (pre_target_address & 0xFF00)
-                        | ((pre_target_address + 1) & 0x00FF)
-                    );
+                    auto high_byte_address
+                        = static_cast<uint16_t>((pre_target_address & 0xFF00) | ((pre_target_address + 1) & 0x00FF));
                     auto higher_target_address = bus->read(high_byte_address);
-                    auto target_address        = merge_address(
-                        lower_target_address,
-                        higher_target_address
-                    );
+                    auto target_address        = merge_address(lower_target_address, higher_target_address);
                     return target_address & 0xFFFF;
                 }
 
@@ -226,8 +206,8 @@ namespace core
                     uint16_t pre_target_address = (base + registers.x) & 0xFF;
                     uint8_t  final_low          = bus->read(pre_target_address);
                     // zero-page loop
-                    uint8_t final_high = bus->read((pre_target_address + 1) & 0xFF);
-                    auto target_address = merge_address(final_low, final_high);
+                    uint8_t final_high     = bus->read((pre_target_address + 1) & 0xFF);
+                    auto    target_address = merge_address(final_low, final_high);
 
                     return target_address;
                 }
@@ -237,11 +217,8 @@ namespace core
                 {
                     uint8_t base = fetch();
                     // zero-page loop
-                    uint16_t pre_target_address = merge_address(
-                        bus->read(base),
-                        bus->read((base + 1) & 0xFF)
-                    );
-                    auto target_address = pre_target_address + registers.y;
+                    uint16_t pre_target_address = merge_address(bus->read(base), bus->read((base + 1) & 0xFF));
+                    auto     target_address     = pre_target_address + registers.y;
 
                     if ((pre_target_address & 0xFF00) != (target_address & 0xFF00))
                     {
@@ -290,23 +267,15 @@ namespace core
         registers.init_registers();
         registers.pc = fetch_interrupt_handler_address(0xfffc, 0xfffd);
         // registers.pc = 0x8000;
-        std::cout << std::format(
-            "interrpt_handler_address : 0x{:04X}\n",
-            registers.pc
-        ) << std::endl;
+        std::cout << std::format("interrpt_handler_address : 0x{:04X}\n", registers.pc) << std::endl;
     }
 
-    address cpu::fetch_interrupt_handler_address(
-        address lower_address,
-        address higher_address
-    )
+    address cpu::fetch_interrupt_handler_address(address lower_address, address higher_address)
     {
         uint8_t lower_interrupt_handler_address  = bus->read(lower_address);
         uint8_t higher_interrupt_handler_address = bus->read(higher_address);
-        address interrupt_handler_address        = merge_address(
-            lower_interrupt_handler_address,
-            higher_interrupt_handler_address
-        );
+        address interrupt_handler_address
+            = merge_address(lower_interrupt_handler_address, higher_interrupt_handler_address);
         return interrupt_handler_address;
     }
 
@@ -346,7 +315,7 @@ namespace core
 
         uint8_t lower_program_counter  = pop();
         uint8_t higher_program_counter = pop();
-        registers.pc = merge_address(lower_program_counter, higher_program_counter);
+        registers.pc                   = merge_address(lower_program_counter, higher_program_counter);
     }
 
     void cpu::irq()

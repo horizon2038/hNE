@@ -70,17 +70,14 @@ namespace core
                     return;
             }
 
-            uint16_t accumlator = root_cpu.registers.a;
-            uint16_t borrow = root_cpu.registers.carry ? 0 : 1;
-            uint16_t result = accumlator - fetched_value - borrow;
-            uint8_t  result_8bit = static_cast<uint8_t>(result & 0xFF);
+            uint16_t accumlator         = root_cpu.registers.a;
+            uint16_t borrow             = root_cpu.registers.carry ? 0 : 1;
+            uint16_t result             = accumlator - fetched_value - borrow;
+            uint8_t  result_8bit        = static_cast<uint8_t>(result & 0xFF);
 
-            root_cpu.registers.carry
-                = (accumlator >= (static_cast<uint16_t>(fetched_value) + borrow));
-            root_cpu.registers.overflow = ((accumlator ^ result_8bit)
-                                           & (accumlator ^ fetched_value) & 0x80)
-                                        != 0;
-            root_cpu.registers.a = result_8bit;
+            root_cpu.registers.carry    = (accumlator >= (static_cast<uint16_t>(fetched_value) + borrow));
+            root_cpu.registers.overflow = ((accumlator ^ result_8bit) & (accumlator ^ fetched_value) & 0x80) != 0;
+            root_cpu.registers.a        = result_8bit;
             root_cpu.update_negative(result_8bit);
             root_cpu.update_zero(result_8bit);
         }

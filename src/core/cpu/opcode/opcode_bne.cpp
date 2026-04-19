@@ -23,7 +23,7 @@ namespace core
         {
             root_cpu.registers.pc = target_address;
 
-            cycles = 3;
+            cycles                = 3;
             if ((pc_after_operand & 0xFF00) != (target_address & 0xFF00))
             {
                 cycles = 4;

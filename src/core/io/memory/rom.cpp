@@ -9,9 +9,7 @@
 
 namespace core
 {
-    primitive_rom::primitive_rom(
-        std::unique_ptr<std::vector<uint8_t>> target_rom_data
-    )
+    primitive_rom::primitive_rom(std::unique_ptr<std::vector<uint8_t>> target_rom_data)
         : rom_data(std::move(target_rom_data))
     {
         // dump();
@@ -40,11 +38,11 @@ namespace core
 
     void primitive_rom::dump()
     {
-        auto i = 0;
-        uint32_t line_index = 0;
-        auto byte_space_size = 1;
-        auto block_space_size = 1;
-        auto block_line_max = 4;
+        auto     i                 = 0;
+        uint32_t line_index        = 0;
+        auto     byte_space_size   = 1;
+        auto     block_space_size  = 1;
+        auto     block_line_max    = 4;
 
         auto calculate_line_offset = [&]() -> auto
         {
@@ -74,7 +72,7 @@ namespace core
     rom::rom(const char *file_path)
     {
         auto rom_binary = open_rom_file(file_path);
-        this->header = read_ines_header(rom_binary);
+        this->header    = read_ines_header(rom_binary);
         ines_info();
         setup_rom(rom_binary);
     }
@@ -96,9 +94,9 @@ namespace core
     {
         uint8_t magic[5];
         std::memcpy(magic, this->header.nes, 4);
-        magic[4] = '\0';
+        magic[4]                = '\0';
 
-        auto program_rom_size = 16384 * this->header.program_rom_count;
+        auto program_rom_size   = 16384 * this->header.program_rom_count;
         auto charactor_rom_size = 8192 * this->header.charactor_rom_count;
 
         printf("nes_magic\e[25G : %s\n", magic);
@@ -107,59 +105,40 @@ namespace core
 
         printf("flag_6\e[25G :\n");
         printf("- mirroring\e[25G : %d\n", this->header.mirroring);
-        printf(
-            "- presisent_exists\e[25G : %d\n",
-            this->header.persisent_memory_exists
-        );
+        printf("- presisent_exists\e[25G : %d\n", this->header.persisent_memory_exists);
         printf("- trainer_exists\e[25G : %d\n", this->header.trainer_exists);
-        printf(
-            "- ignore_mirroring\e[25G : %d\n",
-            this->header.ignore_mirroring
-        );
+        printf("- ignore_mirroring\e[25G : %d\n", this->header.ignore_mirroring);
         printf("- mapper_lower\e[25G : %d\n", this->header.mapper_lower);
         printf("\n");
     }
 
     void rom::setup_rom(std::ifstream &file)
     {
-        auto program_rom_offset = sizeof(ines_header);
-        program_rom_offset += this->header.trainer_exists ? 512 : 0;
+        auto program_rom_offset  = sizeof(ines_header);
+        program_rom_offset      += this->header.trainer_exists ? 512 : 0;
 
         printf("program_rom_offset : 0x%04lx\n", program_rom_offset);
 
-        auto program_rom_size = 16384 * this->header.program_rom_count;
+        auto program_rom_size     = 16384 * this->header.program_rom_count;
 
         auto charactor_rom_offset = program_rom_offset + program_rom_size;
-        auto charactor_rom_size = 8192 * this->header.charactor_rom_count;
+        auto charactor_rom_size   = 8192 * this->header.charactor_rom_count;
 
-        auto program_rom_data = create_vector_from_file(
-            file,
-            program_rom_offset,
-            program_rom_size
-        );
+        auto program_rom_data     = create_vector_from_file(file, program_rom_offset, program_rom_size);
 
-        auto charactor_rom_data = create_vector_from_file(
-            file,
-            charactor_rom_offset,
-            charactor_rom_size
-        );
+        auto charactor_rom_data   = create_vector_from_file(file, charactor_rom_offset, charactor_rom_size);
 
-        this->program
-            = std::make_unique<primitive_rom>(std::move(program_rom_data));
+        this->program             = std::make_unique<primitive_rom>(std::move(program_rom_data));
 
-        this->charactor
-            = std::make_unique<primitive_rom>(std::move(charactor_rom_data));
+        this->charactor           = std::make_unique<primitive_rom>(std::move(charactor_rom_data));
     }
 
     void create_program_rom(std::ifstream &file)
     {
     }
 
-    std::unique_ptr<std::vector<uint8_t>> rom::create_vector_from_file(
-        std::ifstream &file,
-        std::streamoff offset,
-        size_t size
-    )
+    std::unique_ptr<std::vector<uint8_t>>
+        rom::create_vector_from_file(std::ifstream &file, std::streamoff offset, size_t size)
     {
         auto data = std::make_unique<std::vector<uint8_t>>(size);
 

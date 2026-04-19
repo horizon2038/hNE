@@ -27,7 +27,7 @@ namespace core
             bool is_fetched_value_signed = false;
             bool is_result_signed        = false;
 
-            is_a_signed = static_cast<bool>((root_cpu.registers.a >> 7) & 1);
+            is_a_signed                  = static_cast<bool>((root_cpu.registers.a >> 7) & 1);
 
             using enum addressing_mode;
             switch (mode)
@@ -79,8 +79,7 @@ namespace core
 
             is_fetched_value_signed = static_cast<bool>((fetched_value >> 7) & 1);
 
-            result_value = static_cast<uint16_t>(fetched_value & 0xFF)
-                         + static_cast<uint16_t>(root_cpu.registers.a)
+            result_value = static_cast<uint16_t>(fetched_value & 0xFF) + static_cast<uint16_t>(root_cpu.registers.a)
                          + static_cast<uint16_t>(root_cpu.registers.carry);
 
             is_result_signed     = static_cast<bool>((result_value >> 7) & 1);
@@ -88,10 +87,8 @@ namespace core
 
             // update flag
             root_cpu.update_negative(root_cpu.registers.a);
-            root_cpu.registers.overflow
-                = (is_a_signed == is_fetched_value_signed)
-               && (is_a_signed != is_result_signed);
-            root_cpu.registers.carry = result_value > 0xFF;
+            root_cpu.registers.overflow = (is_a_signed == is_fetched_value_signed) && (is_a_signed != is_result_signed);
+            root_cpu.registers.carry    = result_value > 0xFF;
             root_cpu.update_zero(root_cpu.registers.a);
         }
 

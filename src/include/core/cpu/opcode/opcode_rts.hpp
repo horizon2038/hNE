@@ -15,12 +15,10 @@ namespace core
 
         void execute() override
         {
-            auto lower_address  = root_cpu.pop();
-            auto higher_address = root_cpu.pop();
+            auto lower_address    = root_cpu.pop();
+            auto higher_address   = root_cpu.pop();
 
-            root_cpu.registers.pc = static_cast<uint16_t>(
-                merge_address(lower_address, higher_address) + 1
-            );
+            root_cpu.registers.pc = static_cast<uint16_t>(merge_address(lower_address, higher_address) + 1);
             root_cpu.apply_cycles(6);
         }
 

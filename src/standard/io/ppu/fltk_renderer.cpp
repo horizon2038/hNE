@@ -16,15 +16,12 @@ namespace hal::standard
     {
       public:
         fltk_ppu_view(
-            int x,
-            int y,
-            int w,
-            int h,
-            std::array<
-                uint8_t,
-                fltk_ppu_renderer::SCREEN_WIDTH
-                    * fltk_ppu_renderer::SCREEN_HEIGHT * 3> &target_pixels,
-            core::key_input_sink                            *init_key_input_sink
+            int                                                                                          x,
+            int                                                                                          y,
+            int                                                                                          w,
+            int                                                                                          h,
+            std::array<uint8_t, fltk_ppu_renderer::SCREEN_WIDTH * fltk_ppu_renderer::SCREEN_HEIGHT * 3> &target_pixels,
+            core::key_input_sink *init_key_input_sink
         )
             : Fl_Widget(x, y, w, h)
             , pixels(target_pixels)
@@ -34,14 +31,7 @@ namespace hal::standard
 
         void draw() override
         {
-            fl_draw_image(
-                pixels.data(),
-                x(),
-                y(),
-                fltk_ppu_renderer::SCREEN_WIDTH,
-                fltk_ppu_renderer::SCREEN_HEIGHT,
-                3
-            );
+            fl_draw_image(pixels.data(), x(), y(), fltk_ppu_renderer::SCREEN_WIDTH, fltk_ppu_renderer::SCREEN_HEIGHT, 3);
         }
 
         int handle(int event) override
@@ -57,8 +47,7 @@ namespace hal::standard
                 case FL_KEYUP :
                     if (key_input_sink)
                     {
-                        key_input_sink
-                            ->on_key_event(Fl::event_key(), event == FL_KEYDOWN);
+                        key_input_sink->on_key_event(Fl::event_key(), event == FL_KEYDOWN);
                     }
                     return 1;
 
@@ -70,9 +59,8 @@ namespace hal::standard
         }
 
       private:
-        std::array<uint8_t, fltk_ppu_renderer::SCREEN_WIDTH * fltk_ppu_renderer::SCREEN_HEIGHT * 3>
-                             &pixels;
-        core::key_input_sink *key_input_sink {};
+        std::array<uint8_t, fltk_ppu_renderer::SCREEN_WIDTH * fltk_ppu_renderer::SCREEN_HEIGHT * 3> &pixels;
+        core::key_input_sink                                                                        *key_input_sink {};
     };
 
     fltk_ppu_renderer::fltk_ppu_renderer(core::key_input_sink *init_key_input_sink)
@@ -89,16 +77,9 @@ namespace hal::standard
         if (enable_window != nullptr && enable_window[0] == '1')
         {
             window_enabled = true;
-            window = std::make_unique<Fl_Window>(SCREEN_WIDTH, SCREEN_HEIGHT, "hNE PPU");
+            window         = std::make_unique<Fl_Window>(SCREEN_WIDTH, SCREEN_HEIGHT, "hNE PPU");
             window->color(FL_BLACK);
-            view = std::make_unique<fltk_ppu_view>(
-                0,
-                0,
-                SCREEN_WIDTH,
-                SCREEN_HEIGHT,
-                pixels,
-                key_input_sink
-            );
+            view = std::make_unique<fltk_ppu_view>(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, pixels, key_input_sink);
             window->resizable(view.get());
             window->end();
             window->show();
@@ -111,8 +92,7 @@ namespace hal::standard
 
     void fltk_ppu_renderer::on_vram_write(uint16_t ppu_address, uint8_t value)
     {
-        auto pixel_index = static_cast<size_t>(ppu_address)
-                         % static_cast<size_t>(SCREEN_WIDTH * SCREEN_HEIGHT);
+        auto pixel_index   = static_cast<size_t>(ppu_address) % static_cast<size_t>(SCREEN_WIDTH * SCREEN_HEIGHT);
         auto offset        = pixel_index * 3;
         auto color         = decode_color(value);
 
@@ -227,8 +207,7 @@ namespace hal::standard
         if ((current_mask & 0x01) != 0)
         {
             auto luminance = static_cast<uint8_t>(
-                (static_cast<uint16_t>(color[0]) * 30
-                 + static_cast<uint16_t>(color[1]) * 59
+                (static_cast<uint16_t>(color[0]) * 30 + static_cast<uint16_t>(color[1]) * 59
                  + static_cast<uint16_t>(color[2]) * 11)
                 / 100
             );
@@ -245,8 +224,7 @@ namespace hal::standard
         auto apply_emphasis = [](uint8_t component, bool emphasized) -> uint8_t
         {
             uint16_t scaled
-                = emphasized ? static_cast<uint16_t>(component) * 115 / 100 :
-                               static_cast<uint16_t>(component) * 85 / 100;
+                = emphasized ? static_cast<uint16_t>(component) * 115 / 100 : static_cast<uint16_t>(component) * 85 / 100;
 
             if (scaled > 255)
             {

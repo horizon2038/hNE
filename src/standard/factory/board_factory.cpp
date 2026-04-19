@@ -13,21 +13,18 @@ namespace hal::standard
 {
     std::unique_ptr<core::board> board_factory::make(const char *rom_path)
     {
-        auto ram      = std::make_unique<core::working_ram>();
-        auto rom      = std::make_unique<core::rom>(rom_path);
+        auto ram         = std::make_unique<core::working_ram>();
+        auto rom         = std::make_unique<core::rom>(rom_path);
         auto controller1 = std::make_unique<fltk_key_controller>();
-        auto renderer = std::make_unique<fltk_ppu_renderer>(controller1.get());
-        auto ppu      = std::make_unique<core::ppu>(
-            std::move(renderer),
-            rom->header.mirroring != 0
-        );
+        auto renderer    = std::make_unique<fltk_ppu_renderer>(controller1.get());
+        auto ppu         = std::make_unique<core::ppu>(std::move(renderer), rom->header.mirroring != 0);
 
         if (auto *chr_rom = dynamic_cast<core::primitive_rom *>(rom->charactor.get()))
         {
             ppu->load_chr_rom(chr_rom->raw_data());
         }
 
-        auto bus      = std::make_unique<core::bus>(
+        auto bus = std::make_unique<core::bus>(
             std::move(ram),
             std::move(rom->charactor),
             std::move(rom->program),

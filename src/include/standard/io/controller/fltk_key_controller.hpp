@@ -6,11 +6,12 @@
 
 namespace hal::standard
 {
-    class fltk_key_controller final : public core::serial_controller,
-                                      public core::key_input_sink
+    class fltk_key_controller final
+        : public core::serial_controller
+        , public core::key_input_sink
     {
       public:
-        fltk_key_controller()          = default;
+        fltk_key_controller()           = default;
         ~fltk_key_controller() override = default;
 
         void on_key_event(int key, bool pressed) override;

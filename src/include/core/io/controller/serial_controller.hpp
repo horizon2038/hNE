@@ -10,7 +10,7 @@ namespace core
     class serial_controller : public controller
     {
       public:
-        serial_controller() = default;
+        serial_controller()           = default;
         ~serial_controller() override = default;
 
         uint8_t read(address target_address) override;

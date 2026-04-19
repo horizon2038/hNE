@@ -28,8 +28,8 @@ namespace core
             {
                 case ACCUMLATOR :
                     root_cpu.apply_cycles(2);
-                    target_value    = root_cpu.registers.a;
-                    is_accumulator  = true;
+                    target_value   = root_cpu.registers.a;
+                    is_accumulator = true;
                     break;
 
                 case ZERO_PAGE :
@@ -57,9 +57,9 @@ namespace core
                     return;
             }
 
-            auto previous_carry    = static_cast<uint8_t>(root_cpu.registers.carry);
+            auto previous_carry      = static_cast<uint8_t>(root_cpu.registers.carry);
             root_cpu.registers.carry = (target_value >> 7) & 0x01;
-            target_value = static_cast<uint8_t>((target_value << 1) | previous_carry);
+            target_value             = static_cast<uint8_t>((target_value << 1) | previous_carry);
 
             if (is_accumulator)
             {

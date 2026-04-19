@@ -29,13 +29,11 @@ namespace core
                     {
                         root_cpu.apply_cycles(2);
                         auto fetched_value = fetched_address & 0xFF;
-                        target_value = root_cpu.registers.a - fetched_value;
+                        target_value       = root_cpu.registers.a - fetched_value;
 
                         root_cpu.update_negative(target_value);
-                        root_cpu.registers.zero
-                            = (fetched_value == root_cpu.registers.a);
-                        root_cpu.registers.carry
-                            = fetched_value <= root_cpu.registers.a;
+                        root_cpu.registers.zero  = (fetched_value == root_cpu.registers.a);
+                        root_cpu.registers.carry = fetched_value <= root_cpu.registers.a;
                         return;
                     }
 

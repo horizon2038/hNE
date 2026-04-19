@@ -12,7 +12,7 @@ namespace core
     {
       public:
         uint8_t read(address target_address) override;
-        void write(address target_address, uint8_t data) override;
+        void    write(address target_address, uint8_t data) override;
 
       private:
         uint8_t _ram[0x800];

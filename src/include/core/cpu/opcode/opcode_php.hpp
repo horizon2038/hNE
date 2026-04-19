@@ -14,8 +14,8 @@ namespace core
 
         void execute() override
         {
-            auto previous_break    = root_cpu.registers.break_mode;
-            auto previous_reserved = root_cpu.registers.reserved;
+            auto previous_break           = root_cpu.registers.break_mode;
+            auto previous_reserved        = root_cpu.registers.reserved;
 
             root_cpu.registers.break_mode = true;
             root_cpu.registers.reserved   = true;

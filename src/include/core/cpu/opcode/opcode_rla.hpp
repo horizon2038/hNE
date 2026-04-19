@@ -59,23 +59,19 @@ namespace core
                     return;
             }
 
-            auto fetched_address = root_cpu.fetch_operand_address(mode);
-            auto original_value  = root_cpu.bus->read(fetched_address);
+            auto fetched_address     = root_cpu.fetch_operand_address(mode);
+            auto original_value      = root_cpu.bus->read(fetched_address);
 
-            uint8_t old_carry
-                = static_cast<uint8_t>(root_cpu.registers.carry ? 1 : 0);
-            bool new_carry     = ((original_value & 0x80) != 0);
+            uint8_t old_carry        = static_cast<uint8_t>(root_cpu.registers.carry ? 1 : 0);
+            bool    new_carry        = ((original_value & 0x80) != 0);
 
-            auto rotated_value = static_cast<uint8_t>(
-                ((original_value << 1) & 0xFF) | old_carry
-            );
+            auto rotated_value       = static_cast<uint8_t>(((original_value << 1) & 0xFF) | old_carry);
 
             root_cpu.registers.carry = new_carry;
 
             root_cpu.bus->write(fetched_address, rotated_value);
 
-            auto final_value
-                = static_cast<uint8_t>(root_cpu.registers.a & rotated_value);
+            auto final_value     = static_cast<uint8_t>(root_cpu.registers.a & rotated_value);
 
             root_cpu.registers.a = final_value;
             root_cpu.update_zero(final_value);

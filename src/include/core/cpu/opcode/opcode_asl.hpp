@@ -28,8 +28,8 @@ namespace core
             {
                 case ACCUMLATOR :
                     root_cpu.apply_cycles(2);
-                    target_value    = root_cpu.registers.a;
-                    is_accumulator  = true;
+                    target_value   = root_cpu.registers.a;
+                    is_accumulator = true;
                     break;
 
                 case ZERO_PAGE :

@@ -14,10 +14,7 @@ namespace core
     class ppu final : public io
     {
       public:
-        explicit ppu(
-            std::unique_ptr<ppu_renderer> init_renderer,
-            bool                          init_vertical_mirroring
-        );
+        explicit ppu(std::unique_ptr<ppu_renderer> init_renderer, bool init_vertical_mirroring);
         ~ppu() override;
 
         uint8_t read(address target_address) override;
@@ -63,15 +60,8 @@ namespace core
         void write_data(uint8_t data);
 
         void    render_background();
-        uint8_t read_attribute_palette_select(
-            uint16_t nametable_base,
-            uint8_t  tile_x,
-            uint8_t  tile_y
-        ) const;
-        uint8_t read_background_palette_entry(
-            uint8_t palette_select,
-            uint8_t pixel_color_index
-        ) const;
+        uint8_t read_attribute_palette_select(uint16_t nametable_base, uint8_t tile_x, uint8_t tile_y) const;
+        uint8_t read_background_palette_entry(uint8_t palette_select, uint8_t pixel_color_index) const;
         uint8_t read_vram(uint16_t target_address) const;
 
         uint16_t normalize_vram_address(uint16_t target_address) const;

@@ -64,12 +64,11 @@ namespace core
 
             root_cpu.registers.carry = ((original_value & 0x01) != 0);
 
-            auto shifted_value = static_cast<uint8_t>(original_value >> 1);
+            auto shifted_value       = static_cast<uint8_t>(original_value >> 1);
 
             root_cpu.bus->write(fetched_address, shifted_value);
 
-            auto final_value
-                = static_cast<uint8_t>(root_cpu.registers.a ^ shifted_value);
+            auto final_value     = static_cast<uint8_t>(root_cpu.registers.a ^ shifted_value);
 
             root_cpu.registers.a = final_value;
             root_cpu.update_zero(final_value);
