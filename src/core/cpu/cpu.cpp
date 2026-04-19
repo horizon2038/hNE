@@ -5,10 +5,24 @@
 
 #include <core/cpu/opcode/opcode_none.hpp>
 
+#include <cstdlib>
 #include <iostream>
 
 namespace core
 {
+    namespace
+    {
+        bool is_cpu_trace_enabled()
+        {
+            static bool enabled = []()
+            {
+                const char *env = std::getenv("HNE_TRACE_CPU");
+                return env != nullptr && env[0] == '1';
+            }();
+            return enabled;
+        }
+    }
+
     cpu::cpu(std::unique_ptr<io> target_bus)
         : registers {}
         , bus { std::move(target_bus) }
@@ -44,6 +58,12 @@ namespace core
     // clock() is called from boards
     void cpu::clock()
     {
+        bus->tick();
+        if (bus->poll_nmi())
+        {
+            nmi();
+        }
+
         // printf("current pc : 0x%04x\n", this->registers.pc);
         cycles--;
         // printf("cycles : %8d\n", cycles);
@@ -53,10 +73,17 @@ namespace core
         }
 
         uint8_t opcode_number = fetch();
-        std::cout << std::format("opcode : 0x{:02X}", opcode_number) << std::endl;
+        if (is_cpu_trace_enabled())
+        {
+            std::cout << std::format("opcode : 0x{:02X}", opcode_number)
+                      << std::endl;
+        }
 
         execute(opcode_number);
-        print_cpu_status();
+        if (is_cpu_trace_enabled())
+        {
+            print_cpu_status();
+        }
     }
 
     bool cpu::is_cycle_running()
@@ -165,7 +192,7 @@ namespace core
 
             case addressing_mode::RELATIVE :
                 {
-                    int8_t  offset = static_cast<int8_t>(fetch());
+                    int8_t  offset         = static_cast<int8_t>(fetch());
                     int16_t target_address = static_cast<int16_t>(registers.pc)
                                            + static_cast<int16_t>(offset);
                     return static_cast<uint16_t>(target_address);
@@ -178,7 +205,12 @@ namespace core
                     auto pre_target_address
                         = merge_address(lower_address, higher_address);
                     auto lower_target_address = bus->read(pre_target_address);
-                    auto higher_target_address = bus->read(pre_target_address + 1);
+                    // Emulate 6502 indirect JMP page-wrap bug.
+                    auto high_byte_address = static_cast<uint16_t>(
+                        (pre_target_address & 0xFF00)
+                        | ((pre_target_address + 1) & 0x00FF)
+                    );
+                    auto higher_target_address = bus->read(high_byte_address);
                     auto target_address = merge_address(
                         lower_target_address,
                         higher_target_address
@@ -255,7 +287,6 @@ namespace core
 
     void cpu::reset()
     {
-        registers.disable_irq = true;
         registers.init_registers();
         registers.pc = fetch_interrupt_handler_address(0xfffc, 0xfffd);
         // registers.pc = 0x8000;
@@ -263,8 +294,6 @@ namespace core
             "interrpt_handler_address : 0x{:04X}\n",
             registers.pc
         ) << std::endl;
-        ;
-        registers.disable_irq = false;
     }
 
     address cpu::fetch_interrupt_handler_address(
@@ -283,22 +312,31 @@ namespace core
 
     void cpu::nmi()
     {
+        save_interrupt_frame(false);
         registers.disable_irq = true;
-        registers.break_mode  = false;
-        save_interrupt_frame();
         registers.pc          = fetch_interrupt_handler_address(0xfffa, 0xfffb);
-        registers.disable_irq = false;
     }
 
-    void cpu::save_interrupt_frame()
+    void cpu::save_interrupt_frame(bool break_mode)
     {
-        // masking and set bit-conversion.
         uint8_t lower_program_counter  = (registers.pc >> 0) & 0xFF;
         uint8_t higher_program_counter = (registers.pc >> 8) & 0xFF;
+        uint8_t status_to_push         = registers.p;
+
+        // Bit 5 is always set on stack, bit 4 depends on BRK/PHP context.
+        status_to_push = static_cast<uint8_t>(status_to_push | 0x20);
+        if (break_mode)
+        {
+            status_to_push = static_cast<uint8_t>(status_to_push | 0x10);
+        }
+        else
+        {
+            status_to_push = static_cast<uint8_t>(status_to_push & ~0x10);
+        }
 
         push(higher_program_counter);
         push(lower_program_counter);
-        push(registers.p);
+        push(status_to_push);
     }
 
     // rti
@@ -318,25 +356,18 @@ namespace core
             return;
         }
 
+        save_interrupt_frame(false);
         registers.disable_irq = true;
-        registers.break_mode  = false;
-        save_interrupt_frame();
         registers.pc          = fetch_interrupt_handler_address(0xfffe, 0xffff);
-        registers.disable_irq = false;
     }
 
     void cpu::brk()
     {
-        if (registers.disable_irq)
-        {
-            return;
-        }
-
+        // BRK is a two-byte instruction; PC+1 must be pushed.
+        registers.pc = static_cast<uint16_t>(registers.pc + 1);
+        save_interrupt_frame(true);
         registers.disable_irq = true;
-        registers.break_mode  = true;
-        save_interrupt_frame();
         registers.pc          = fetch_interrupt_handler_address(0xfffe, 0xffff);
-        registers.disable_irq = false;
     }
 
     void cpu::print_cpu_status()

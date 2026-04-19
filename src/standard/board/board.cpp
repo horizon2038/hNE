@@ -4,8 +4,7 @@
 
 namespace hal::standard
 {
-    board::board(std::unique_ptr<core::cpu> init_cpu)
-        : cpu(std::move(init_cpu))
+    board::board(std::unique_ptr<core::cpu> init_cpu) : cpu(std::move(init_cpu))
     {
     }
 
@@ -22,7 +21,7 @@ namespace hal::standard
         for (;;)
         {
             cpu->clock();
-            usleep(5000);
+            // usleep(5);
         }
     }
 }

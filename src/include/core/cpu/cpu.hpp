@@ -67,7 +67,7 @@ namespace core
             address lower_address,
             address higher_address
         );
-        void save_interrupt_frame();
+        void save_interrupt_frame(bool break_mode);
         void restore_interrupt_frame();
     };
 }

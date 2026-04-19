@@ -49,6 +49,7 @@ namespace core
 
         uint8_t read(address target_address) override;
         void write(address target_address, uint8_t data) override;
+        const std::vector<uint8_t> &raw_data() const;
 
         void dump();
 

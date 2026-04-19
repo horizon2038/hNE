@@ -33,6 +33,11 @@ namespace core
     // "Read Only"
     void primitive_rom::write(address target_address, uint8_t data) {};
 
+    const std::vector<uint8_t> &primitive_rom::raw_data() const
+    {
+        return *rom_data;
+    }
+
     void primitive_rom::dump()
     {
         auto i = 0;
