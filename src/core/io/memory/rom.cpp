@@ -19,8 +19,15 @@ namespace core
 
     uint8_t primitive_rom::read(address target_address)
     {
-        return rom_data->data()[target_address];
-        // return rom_data->at(target_address);
+        auto rom_size = rom_data->size();
+        if (rom_size == 0)
+        {
+            return 0;
+        }
+
+        // NROM-128(16KB) requires mirroring in 0xC000-0xFFFF range.
+        auto local_address = static_cast<size_t>(target_address) % rom_size;
+        return rom_data->data()[local_address];
     }
 
     // "Read Only"
