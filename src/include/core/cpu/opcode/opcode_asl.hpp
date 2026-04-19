@@ -21,33 +21,31 @@ namespace core
         {
             auto    fetched_address = root_cpu.fetch_operand_address(mode);
             uint8_t target_value {};
+            bool    is_accumulator = false;
 
             using enum addressing_mode;
             switch (mode)
             {
                 case ACCUMLATOR :
                     root_cpu.apply_cycles(2);
-                    root_cpu.registers.carry = (root_cpu.registers.a >> 7) & 1;
-                    target_value             = root_cpu.registers.a << 1;
-                    root_cpu.registers.a     = target_value;
-                    root_cpu.update_negative(target_value);
-                    root_cpu.update_zero(target_value);
-                    return;
+                    target_value    = root_cpu.registers.a;
+                    is_accumulator  = true;
+                    break;
 
                 case ZERO_PAGE :
-                    root_cpu.apply_cycles(6);
-                    break;
-
-                case INDEXED_ZERO_PAGE_X :
-                    root_cpu.apply_cycles(7);
-                    break;
-
-                case ABSOLUTE :
                     root_cpu.apply_cycles(5);
                     break;
 
-                case INDEXED_ABSOLUTE_X :
+                case INDEXED_ZERO_PAGE_X :
                     root_cpu.apply_cycles(6);
+                    break;
+
+                case ABSOLUTE :
+                    root_cpu.apply_cycles(6);
+                    break;
+
+                case INDEXED_ABSOLUTE_X :
+                    root_cpu.apply_cycles(7);
                     break;
 
                 default :
@@ -55,8 +53,22 @@ namespace core
                     return;
             }
 
-            target_value             = root_cpu.bus->read(fetched_address);
+            if (!is_accumulator)
+            {
+                target_value = root_cpu.bus->read(fetched_address);
+            }
+
             root_cpu.registers.carry = (target_value >> 7) & 1;
+            target_value             = static_cast<uint8_t>(target_value << 1);
+
+            if (is_accumulator)
+            {
+                root_cpu.registers.a = target_value;
+            }
+            else
+            {
+                root_cpu.bus->write(fetched_address, target_value);
+            }
 
             // flag
             root_cpu.update_negative(target_value);

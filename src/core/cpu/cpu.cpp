@@ -248,8 +248,8 @@ namespace core
 
     uint8_t cpu::pop()
     {
-        uint8_t fetched_data = bus->read((0x0100 + registers.s));
         registers.s++;
+        uint8_t fetched_data = bus->read((0x0100 + registers.s));
         return fetched_data;
     }
 

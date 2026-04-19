@@ -35,7 +35,7 @@ namespace core
                             = (fetched_value == root_cpu.registers.y);
                         root_cpu.update_negative(target_value);
                         root_cpu.registers.carry
-                            = fetched_value < root_cpu.registers.y;
+                            = fetched_value <= root_cpu.registers.y;
                         return;
                     }
 

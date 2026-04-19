@@ -17,11 +17,7 @@ namespace core
         {
             root_cpu.apply_cycles(2);
 
-            uint8_t target_value = root_cpu.registers.x;
-            root_cpu.registers.s = target_value;
-
-            root_cpu.update_negative(target_value);
-            root_cpu.update_zero(target_value);
+            root_cpu.registers.s = root_cpu.registers.x;
         }
 
       private:

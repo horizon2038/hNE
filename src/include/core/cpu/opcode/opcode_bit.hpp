@@ -20,7 +20,8 @@ namespace core
         void execute() override
         {
             auto    fetched_address = root_cpu.fetch_operand_address(mode);
-            uint8_t target_value {};
+            uint8_t fetched_value {};
+            uint8_t and_result {};
 
             using enum addressing_mode;
             switch (mode)
@@ -38,13 +39,13 @@ namespace core
                     return;
             }
 
-            target_value = root_cpu.registers.a
-                         & root_cpu.bus->read(fetched_address);
+            fetched_value = root_cpu.bus->read(fetched_address);
+            and_result    = root_cpu.registers.a & fetched_value;
 
             // flag
-            root_cpu.registers.overflow = (target_value >> 6) & 1;
-            root_cpu.update_negative(target_value);
-            root_cpu.update_zero(target_value);
+            root_cpu.registers.overflow = (fetched_value >> 6) & 1;
+            root_cpu.update_negative(fetched_value);
+            root_cpu.update_zero(and_result);
         }
 
       private:

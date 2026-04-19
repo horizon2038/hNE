@@ -20,7 +20,7 @@ namespace core
             root_cpu.registers.y = target_value;
 
             root_cpu.update_negative(target_value);
-            root_cpu.registers.zero = (target_value);
+            root_cpu.update_zero(target_value);
         }
 
       private:

@@ -1,5 +1,5 @@
-#ifndef CORE_OPCODE_AND_HPP
-#define CORE_OPCODE_AND_HPP
+#ifndef CORE_OPCODE_ORA_HPP
+#define CORE_OPCODE_ORA_HPP
 
 #include <core/cpu/adressing.hpp>
 #include <core/cpu/cpu.hpp>
@@ -9,57 +9,60 @@
 
 namespace core
 {
-    class opcode_and final : public opcode
+    class opcode_ora final : public opcode
     {
       public:
-        opcode_and(addressing_mode init_addressing_mode, cpu &target_cpu)
+        opcode_ora(addressing_mode init_addressing_mode, cpu &target_cpu)
             : mode { init_addressing_mode }
             , root_cpu { target_cpu } {};
-        ~opcode_and() {};
+        ~opcode_ora() {};
 
         void execute() override
         {
             auto    fetched_address = root_cpu.fetch_operand_address(mode);
-            uint8_t target_value {};
+            uint8_t fetched_value {};
 
             using enum addressing_mode;
             switch (mode)
             {
                 case IMMEDIATE :
                     root_cpu.apply_cycles(2);
-                    target_value = static_cast<uint8_t>(fetched_address & 0xFF)
-                                 & root_cpu.registers.a;
-                    root_cpu.registers.a = target_value;
-                    root_cpu.update_negative(target_value);
-                    root_cpu.update_zero(target_value);
-                    return;
+                    fetched_value = static_cast<uint8_t>(fetched_address & 0xFF);
+                    break;
 
                 case ZERO_PAGE :
                     root_cpu.apply_cycles(3);
+                    fetched_value = root_cpu.bus->read(fetched_address);
                     break;
 
                 case INDEXED_ZERO_PAGE_X :
                     root_cpu.apply_cycles(4);
+                    fetched_value = root_cpu.bus->read(fetched_address);
                     break;
 
                 case ABSOLUTE :
                     root_cpu.apply_cycles(4);
+                    fetched_value = root_cpu.bus->read(fetched_address);
                     break;
 
                 case INDEXED_ABSOLUTE_X :
                     root_cpu.apply_cycles(4);
+                    fetched_value = root_cpu.bus->read(fetched_address);
                     break;
 
                 case INDEXED_ABSOLUTE_Y :
                     root_cpu.apply_cycles(4);
+                    fetched_value = root_cpu.bus->read(fetched_address);
                     break;
 
                 case INDEXED_INDIRECT :
                     root_cpu.apply_cycles(6);
+                    fetched_value = root_cpu.bus->read(fetched_address);
                     break;
 
                 case INDIRECT_INDEXED :
                     root_cpu.apply_cycles(5);
+                    fetched_value = root_cpu.bus->read(fetched_address);
                     break;
 
                 default :
@@ -67,8 +70,7 @@ namespace core
                     return;
             }
 
-            target_value          = root_cpu.bus->read(fetched_address);
-            root_cpu.registers.a &= target_value;
+            root_cpu.registers.a |= fetched_value;
             root_cpu.update_negative(root_cpu.registers.a);
             root_cpu.update_zero(root_cpu.registers.a);
         }
